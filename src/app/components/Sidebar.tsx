@@ -9,7 +9,7 @@ export default function Sidebar() {
     const bgColor = useColorModeValue('gray.300', 'gray.800');
     const linkHoverBg = useColorModeValue('gray.200', 'gray.700');
     return (
-        <Box bg={bgColor} w="250px" h="100vh" p="4">
+        <Box bg={bgColor} w="250px" h="100vh" p="4" position="fixed" left="0" top="0">
             <Flex direction="column" justifyContent={'space-between'} h="100%">
                 <Box>
                     <Flex direction="column">
