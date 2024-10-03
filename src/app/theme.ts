@@ -1,4 +1,5 @@
 import { extendTheme, StyleFunctionProps, ThemeConfig } from "@chakra-ui/react";
+import { statTheme } from "./components/custom-styles/stat";
 
 const config: ThemeConfig = {
   initialColorMode: "dark",
@@ -15,6 +16,7 @@ const theme = extendTheme({
       },
     }),
   },
+  components: { Stat: statTheme },
 });
 
 export default theme;

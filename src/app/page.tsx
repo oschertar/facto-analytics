@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { Box, Button, Spinner, Text, Input, Flex, Select } from '@chakra-ui/react';
+import { useCallback, useEffect, useState } from 'react';
+import { Box, Button, Spinner, Text, Input, Flex, Select, Stat, StatLabel, StatNumber, StatHelpText, HStack } from '@chakra-ui/react';
 import Chart from './components/Chart';
-import { Metric } from './types/Metric';
+import { MetricResponse } from './types/Metric';
 
 const Dashboard = () => {
-  const [data, setData] = useState<Metric[]>([]);
+  const [data, setData] = useState<MetricResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
@@ -17,10 +17,11 @@ const Dashboard = () => {
     const response = await fetch('/api/getNameMetrics');
     const result = await response.json();
     setTypeNames(result);
+    setLoading(false);
 
   };
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
 
     const paramsQuery = new URLSearchParams({});
@@ -54,17 +55,20 @@ const Dashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [fromDate, toDate, filterName]);
 
   const handleSubmit = () => {
-    fetchData();
-
+    if (filterName) {
+      fetchData();
+    }
   };
 
   useEffect(() => {
     fetchTypeNames();
-    fetchData();
   }, []);
+
+
+
 
   if (loading) return <Spinner />;
 
@@ -109,11 +113,46 @@ const Dashboard = () => {
         </Button>
       </Flex>
 
-      <Box display={"flex"}>
-        <Chart data={data} />
-      </Box>
+      {data?.results.length ?
 
-      <pre>{JSON.stringify(data, null, 2)}</pre>
+        <Box>
+          <HStack gap={4}>
+            <Stat>
+              <StatLabel>Higher number of {data.statistics.name}</StatLabel>
+              <StatNumber>{data.statistics.max.value}</StatNumber>
+              <StatHelpText>{data.statistics.max.date}</StatHelpText>
+            </Stat>
+
+
+            <Stat>
+              <StatLabel>Lower number of {data.statistics.name}</StatLabel>
+              <StatNumber>{data.statistics.min.value}</StatNumber>
+              <StatHelpText>{data.statistics.min.date}</StatHelpText>
+            </Stat>
+
+            <Stat>
+              <StatLabel>Average {data.statistics.name}</StatLabel>
+              <StatNumber>{data.statistics.average}</StatNumber>
+              <StatHelpText>In this period </StatHelpText>
+            </Stat>
+
+            <Stat>
+              <StatLabel>Total {data.statistics.name}</StatLabel>
+              <StatNumber>{data.statistics.total}</StatNumber>
+              <StatHelpText>In this period</StatHelpText>
+            </Stat>
+
+          </HStack>
+          <h3>{data.statistics.name} along this period</h3>
+          <Chart data={data.results} />
+          <pre>{JSON.stringify(data, null, 2)}</pre>
+        </Box>
+
+        : <Text>No data found. Use the filters to search for data.</Text>
+
+      }
+
+
     </Box>
   );
 };
