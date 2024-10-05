@@ -1,4 +1,3 @@
-import { formatDate } from "@/app/utils/utils";
 import { supabase } from "@/utils/supabase";
 import { NextResponse } from "next/server";
 
@@ -13,7 +12,8 @@ export async function GET(req: Request) {
     let query = supabase.from("metrics").select("*");
 
     if (name) {
-      query = query.eq("name", name);
+      const names = name.split(",");
+      query = query.in("name", names);
     }
 
     if (from && to) {
@@ -30,28 +30,47 @@ export async function GET(req: Request) {
 
     const { data, error } = await query;
 
-    let maxValue = 0;
-    let minValue = 0;
-    let dateMaxValue = null;
-    let dateMinValue = null;
-    let totalValue = 0;
-    let averageValue = 0;
+    const dataResponse: {
+      created_at: string;
+      [key: string]: string | number;
+    }[] = [];
+
+    const maxValue = 0;
+    const minValue = 0;
+    const dateMaxValue = null;
+    const dateMinValue = null;
+    const totalValue = 0;
+    const averageValue = 0;
+
+    // minValue = Math.min(...data?.map((metric) => metric.value));
+    // maxValue = Math.max(...data?.map((metric) => metric.value));
+    // dateMaxValue = formatDate(
+    //   data.find((metric) => metric.value === maxValue)?.created_at
+    // );
+    // dateMinValue = formatDate(
+    //   data.find((metric) => metric.value === minValue)?.created_at
+    // );
+    // totalValue = data.reduce((acc, metric) => acc + metric.value, 0);
+    // averageValue = totalValue / data?.length;
 
     if (data && data?.length > 0) {
-      minValue = Math.min(...data?.map((metric) => metric.value));
-      maxValue = Math.max(...data?.map((metric) => metric.value));
-      dateMaxValue = formatDate(
-        data.find((metric) => metric.value === maxValue)?.created_at
-      );
-      dateMinValue = formatDate(
-        data.find((metric) => metric.value === minValue)?.created_at
-      );
-      totalValue = data.reduce((acc, metric) => acc + metric.value, 0);
-      averageValue = totalValue / data?.length;
+      data.forEach((metric) => {
+        const dateInstance = dataResponse.find(
+          (item) => item.created_at === metric.created_at
+        );
+        if (dateInstance) {
+          dateInstance[metric.name] = metric.value;
+        } else {
+          dataResponse.push({
+            created_at: metric.created_at,
+            [metric.name]: metric.value,
+          });
+        }
+      });
     }
 
     const response = {
-      results: data,
+      results: dataResponse,
       statistics: {
         max: { value: maxValue, date: dateMaxValue },
         min: { value: minValue, date: dateMinValue },

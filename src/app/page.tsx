@@ -1,17 +1,21 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { Box, Button, Spinner, Text, Input, Flex, Select, Stat, StatLabel, StatNumber, StatHelpText, HStack } from '@chakra-ui/react';
-import Chart from './components/Chart';
+import { Box, Button, Spinner, Text, Input, Flex, Stat, StatLabel, StatNumber, StatHelpText, HStack } from '@chakra-ui/react';
 import { MetricResponse } from './types/Metric';
+import LineChartCustom from './components/LineChartCustom';
+import {
+  AsyncSelect,
+} from "chakra-react-select";
+import { SelectOption } from './types/SelectOption';
 
 const Dashboard = () => {
   const [data, setData] = useState<MetricResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
-  const [filterName, setFilterName] = useState('');
-  const [typeNames, setTypeNames] = useState<string[]>([]);
+  const [filterName, setFilterName] = useState<string[]>([]);
+  const [typeNames, setTypeNames] = useState<SelectOption[]>([]);
 
   const fetchTypeNames = async () => {
     const response = await fetch('/api/getNameMetrics');
@@ -22,24 +26,21 @@ const Dashboard = () => {
   };
 
   const fetchData = useCallback(async () => {
-    setLoading(true);
+    // setLoading(true);
 
     const paramsQuery = new URLSearchParams({});
 
     try {
       const query = '/api/getMetrics';
 
-
       if (fromDate) {
         paramsQuery.set('from', fromDate);
       }
-
       if (toDate) {
         paramsQuery.set('to', toDate);
       }
-
       if (filterName) {
-        paramsQuery.set('name', filterName);
+        paramsQuery.set('name', filterName.join(','));
       }
 
       const response = await fetch(`${query}?${paramsQuery.toString()}`);
@@ -53,7 +54,7 @@ const Dashboard = () => {
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
-      setLoading(false);
+      //setLoading(false);
     }
   }, [fromDate, toDate, filterName]);
 
@@ -73,10 +74,8 @@ const Dashboard = () => {
   if (loading) return <Spinner />;
 
   return (
-    <Box p="4">
+    <Box p="4" overflow='visible'>
       <Text fontSize="xl" mb="4">Home Page</Text>
-
-
       <Flex mb="4" alignItems="flex-end" gap={4}>
         <Box>
           <Text>From Date:</Text>
@@ -96,36 +95,48 @@ const Dashboard = () => {
             min={fromDate}
           />
         </Box>
-        <Box>
-          <Text>Type:</Text>
-          <Select onChange={(e) => setFilterName(e.target.value)} value={filterName}>
-            <option value="">Select name</option>
-            {typeNames.map((name) => (
-              <option key={name} value={name}>
-                {name}
-              </option>
-            ))}
-
-          </Select>
-        </Box>
+        {typeNames.length ? (
+          <Box>
+            <Text>Type:</Text>
+            <AsyncSelect
+              useBasicStyles
+              selectedOptionStyle="check"
+              isMulti
+              defaultOptions={typeNames}
+              name="events"
+              placeholder="Select some events..."
+              closeMenuOnSelect={false}
+              loadOptions={(inputValue, callback) => {
+                const values = typeNames.filter((i) =>
+                  i.label.toLowerCase().includes(inputValue.toLowerCase())
+                );
+                if (values.length <= 5) {
+                  callback(values);
+                }
+              }}
+              onChange={(selectedOptions) => {
+                setFilterName(selectedOptions.map((option) => option.value));
+              }}
+            />
+          </Box>
+        ) : null}
         <Button onClick={handleSubmit} colorScheme="blue">
           Submit
         </Button>
       </Flex>
 
       {data?.results.length ?
-
-        <Box>
-          <HStack gap={4}>
+        <Box gap={4}>
+          <HStack gap={4} wrap={'wrap'}>
             <Stat>
-              <StatLabel>Higher number of {data.statistics.name}</StatLabel>
+              <StatLabel>Highest number of {data.statistics.name}</StatLabel>
               <StatNumber>{data.statistics.max.value}</StatNumber>
               <StatHelpText>{data.statistics.max.date}</StatHelpText>
             </Stat>
 
 
             <Stat>
-              <StatLabel>Lower number of {data.statistics.name}</StatLabel>
+              <StatLabel>Lowest number of {data.statistics.name}</StatLabel>
               <StatNumber>{data.statistics.min.value}</StatNumber>
               <StatHelpText>{data.statistics.min.date}</StatHelpText>
             </Stat>
@@ -144,13 +155,14 @@ const Dashboard = () => {
 
           </HStack>
           <h3>{data.statistics.name} along this period</h3>
-          <Chart data={data.results} />
-          <pre>{JSON.stringify(data, null, 2)}</pre>
+          <LineChartCustom data={data.results} />
+
         </Box>
 
         : <Text>No data found. Use the filters to search for data.</Text>
 
       }
+
 
 
     </Box>

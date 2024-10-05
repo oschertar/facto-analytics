@@ -20,7 +20,7 @@ export default function RootLayout({
         <ChakraProviderWrapper>
           <Flex>
             <Sidebar />
-            <Box flex="1" p="4" marginLeft={250}>
+            <Box flex="1" p="4" marginLeft={250} overflowX={'auto'} minH={'100vh'}>
               {children}
             </Box>
           </Flex>

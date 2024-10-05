@@ -25,3 +25,8 @@ export interface MetricResponse {
   results: Metric[];
   statistics: Statistics;
 }
+
+export interface DataResponseItem {
+  created_at: string | number;
+  [key: string]: string | number;
+}

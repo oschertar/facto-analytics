@@ -15,7 +15,12 @@ export async function GET() {
       new Set(data.map((metric: { name: string }) => metric.name))
     );
 
-    return NextResponse.json(distinctNames, { status: 200 });
+    const formattedNames = distinctNames.map((name) => ({
+      value: name,
+      label: name,
+    }));
+
+    return NextResponse.json(formattedNames, { status: 200 });
   } catch (error) {
     return NextResponse.json(
       { error: `Error fetching data: ${error}` },
