@@ -1,13 +1,15 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { Box, Button, Spinner, Text, Input, Flex, Stat, StatLabel, StatNumber, StatHelpText, HStack } from '@chakra-ui/react';
+import { Box, Button, Spinner, Text, Input, Flex, Stat, StatLabel, StatNumber, StatHelpText, HStack, useDisclosure } from '@chakra-ui/react';
 import { MetricResponse } from './types/Metric';
 import LineChartCustom from './components/LineChartCustom';
 import {
   AsyncSelect,
 } from "chakra-react-select";
 import { SelectOption } from './types/SelectOption';
+import ModalCustom from './components/Modal';
+import DetailsDateSelected from './components/DetailsDateSelected';
 
 const Dashboard = () => {
   const [data, setData] = useState<MetricResponse | null>(null);
@@ -16,6 +18,11 @@ const Dashboard = () => {
   const [toDate, setToDate] = useState('');
   const [filterName, setFilterName] = useState<string[]>([]);
   const [typeNames, setTypeNames] = useState<SelectOption[]>([]);
+  //const [dataShowing, setDataShowing] = useState<React.ReactNode>(null);
+
+  const [dataSelected, setDataSelected] = useState<[]>([]);
+
+  const { isOpen: isOpenCustomModal, onOpen: onOpenCustomModal, onClose: onCloseCustomModal } = useDisclosure();
 
   const fetchTypeNames = async () => {
     const response = await fetch('/api/getNameMetrics');
@@ -155,7 +162,7 @@ const Dashboard = () => {
 
           </HStack>
           <h3>{data.statistics.name} along this period</h3>
-          <LineChartCustom data={data.results} />
+          <LineChartCustom data={data.results} setDataSelected={setDataSelected} />
 
         </Box>
 
@@ -163,6 +170,10 @@ const Dashboard = () => {
 
       }
 
+      {/* <ModalCustom modalTitle={'Details of this date'} isOpen={isOpenCustomModal} onClose={onCloseCustomModal}>
+        {dataShowing}
+      </ModalCustom> */}
+      <DetailsDateSelected data={dataSelected} />
 
 
     </Box>

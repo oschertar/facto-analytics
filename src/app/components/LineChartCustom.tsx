@@ -1,12 +1,12 @@
 import React from 'react';
-import { XAxis, YAxis, CartesianGrid, Tooltip, LineChart, Line, Legend } from 'recharts';
+import { XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area } from 'recharts';
 import { Metric } from '../types/Metric';
 import { Box } from '@chakra-ui/react';
 import { formatDate } from '../utils/utils';
 
 const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#00C49F'];
 
-export default function LineChartCustom({ data }: { data: Metric[] }) {
+export default function LineChartCustom({ data, setDataSelected }: { data: Metric[], setDataSelected: (data: any) => void }) {
     const uniqueKeys: string[] = [];
 
     data.flatMap(obj => Object.keys(obj)).forEach(key => {
@@ -23,36 +23,43 @@ export default function LineChartCustom({ data }: { data: Metric[] }) {
         };
     }, { min: Infinity, max: -Infinity });
 
-    console.log(min, max);
+
 
     return (
-        <Box py="4" px="0">
-            <LineChart
-                width={500}
-                height={400}
-                data={data}
-                margin={{
-                    top: 10,
-                    right: 30,
-                    left: 0,
-                    bottom: 0,
-                }}
-            >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="created_at" tickFormatter={(value) => new Date(value).toLocaleDateString()} />
-                <YAxis domain={[Math.round(min * 0.9), Math.round(max * 1.1)]} />
-                <Legend />
-                <Tooltip content={<CustomTooltip />} />
-                {uniqueKeys.map((key, index) => (
-                    <Line
-                        key={key}
-                        type="monotone"
-                        dataKey={key}
-                        stroke={COLORS[index % COLORS.length]}
-                        fill={COLORS[index % COLORS.length]}
-                    />
-                ))}
-            </LineChart>
+        <Box py="4" px="0" display={'flex'} justifyContent={'center'} alignItems={'center'}>
+            <ResponsiveContainer width="80%" height={600}>
+                <AreaChart
+                    width={500}
+                    height={400}
+                    data={data}
+                    margin={{
+                        top: 10,
+                        right: 30,
+                        left: 0,
+                        bottom: 0,
+                    }}
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    onClick={(e: any) => {
+                        setDataSelected(e.activePayload);
+                    }}
+                >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="created_at" tickFormatter={(value) => new Date(value).toLocaleDateString()} />
+                    <YAxis domain={[Math.round(min * 0.9), Math.round(max * 1.1)]} />
+                    <Legend />
+                    <Tooltip content={<CustomTooltip />} />
+                    {uniqueKeys.map((key, index) => (
+                        <Area
+                            key={key}
+                            type="monotone"
+                            dataKey={key}
+                            stroke={COLORS[index % COLORS.length]}
+                            fill={COLORS[index % COLORS.length]}
+                        />
+                    ))}
+                </AreaChart>
+            </ResponsiveContainer>
+
         </Box>
     );
 }
