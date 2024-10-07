@@ -68,6 +68,7 @@ const Dashboard = () => {
   const handleSubmit = () => {
     if (filterName) {
       fetchData();
+      setDataSelected([])
     }
   };
 
@@ -134,13 +135,13 @@ const Dashboard = () => {
 
       {data?.results.length ?
         <Box gap={4}>
-          <HStack gap={4} wrap={'wrap'}>
+          <Text fontSize={'3xl'} fontWeight={"bold"} mt={4} mb={4}>Data along this period</Text>
+          <HStack gap={4} wrap={'wrap'} mb={4}>
             <Stat>
               <StatLabel>Highest number of {data.statistics.name}</StatLabel>
               <StatNumber>{data.statistics.max.value}</StatNumber>
               <StatHelpText>{data.statistics.max.date}</StatHelpText>
             </Stat>
-
 
             <Stat>
               <StatLabel>Lowest number of {data.statistics.name}</StatLabel>
@@ -148,20 +149,8 @@ const Dashboard = () => {
               <StatHelpText>{data.statistics.min.date}</StatHelpText>
             </Stat>
 
-            <Stat>
-              <StatLabel>Average {data.statistics.name}</StatLabel>
-              <StatNumber>{data.statistics.average}</StatNumber>
-              <StatHelpText>In this period </StatHelpText>
-            </Stat>
-
-            <Stat>
-              <StatLabel>Total {data.statistics.name}</StatLabel>
-              <StatNumber>{data.statistics.total}</StatNumber>
-              <StatHelpText>In this period</StatHelpText>
-            </Stat>
-
           </HStack>
-          <h3>{data.statistics.name} along this period</h3>
+
           <LineChartCustom data={data.results} setDataSelected={setDataSelected} />
 
         </Box>
@@ -174,6 +163,7 @@ const Dashboard = () => {
         {dataShowing}
       </ModalCustom> */}
       <DetailsDateSelected data={dataSelected} />
+
 
 
     </Box>

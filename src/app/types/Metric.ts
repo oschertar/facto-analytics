@@ -27,6 +27,6 @@ export interface MetricResponse {
 }
 
 export interface DataResponseItem {
-  created_at: string | number;
+  created_at: string;
   [key: string]: string | number;
 }

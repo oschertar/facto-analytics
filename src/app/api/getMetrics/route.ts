@@ -1,3 +1,5 @@
+import { DataResponseItem } from "@/app/types/Metric";
+import { formatDate } from "@/app/utils/utils";
 import { supabase } from "@/utils/supabase";
 import { NextResponse } from "next/server";
 
@@ -30,28 +32,12 @@ export async function GET(req: Request) {
 
     const { data, error } = await query;
 
-    const dataResponse: {
-      created_at: string;
-      [key: string]: string | number;
-    }[] = [];
+    const dataResponse: DataResponseItem[] = [];
 
-    const maxValue = 0;
-    const minValue = 0;
-    const dateMaxValue = null;
-    const dateMinValue = null;
-    const totalValue = 0;
-    const averageValue = 0;
-
-    // minValue = Math.min(...data?.map((metric) => metric.value));
-    // maxValue = Math.max(...data?.map((metric) => metric.value));
-    // dateMaxValue = formatDate(
-    //   data.find((metric) => metric.value === maxValue)?.created_at
-    // );
-    // dateMinValue = formatDate(
-    //   data.find((metric) => metric.value === minValue)?.created_at
-    // );
-    // totalValue = data.reduce((acc, metric) => acc + metric.value, 0);
-    // averageValue = totalValue / data?.length;
+    let maxValue = 0;
+    let minValue = Infinity;
+    let maxObject: DataResponseItem = { created_at: "" };
+    let minObject: DataResponseItem = { created_at: "" };
 
     if (data && data?.length > 0) {
       data.forEach((metric) => {
@@ -69,14 +55,24 @@ export async function GET(req: Request) {
       });
     }
 
+    const keys = Object.keys(dataResponse[0]);
+    keys.forEach((key) => {
+      const values = dataResponse.map((item) => item[key]);
+      if (Math.min(...values) < minValue) {
+        minValue = Math.min(...values);
+        minObject = dataResponse.find((item) => item[key] === minValue);
+      }
+      if (Math.max(...values) > maxValue) {
+        maxValue = Math.max(...values);
+        maxObject = dataResponse.find((item) => item[key] === maxValue);
+      }
+    });
+
     const response = {
       results: dataResponse,
       statistics: {
-        max: { value: maxValue, date: dateMaxValue },
-        min: { value: minValue, date: dateMinValue },
-        average: averageValue?.toFixed(2),
-        total: totalValue,
-        name: name,
+        max: { value: maxValue, date: formatDate(maxObject?.created_at) },
+        min: { value: minValue, date: formatDate(minObject?.created_at) },
       },
     };
 

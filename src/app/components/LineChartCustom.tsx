@@ -3,8 +3,9 @@ import { XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Area
 import { Metric } from '../types/Metric';
 import { Box } from '@chakra-ui/react';
 import { formatDate } from '../utils/utils';
+import { COLORS } from '../types/Constants';
+import theme from '../theme';
 
-const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#00C49F'];
 
 export default function LineChartCustom({ data, setDataSelected }: { data: Metric[], setDataSelected: (data: any) => void }) {
     const uniqueKeys: string[] = [];
@@ -24,9 +25,8 @@ export default function LineChartCustom({ data, setDataSelected }: { data: Metri
     }, { min: Infinity, max: -Infinity });
 
 
-
     return (
-        <Box py="4" px="0" display={'flex'} justifyContent={'center'} alignItems={'center'}>
+        <Box py="4" px="0" display={'flex'} justifyContent={'center'} alignItems={'center'} bg={theme.colors.gray[800]} p={4}>
             <ResponsiveContainer width="80%" height={600}>
                 <AreaChart
                     width={500}
@@ -38,14 +38,13 @@ export default function LineChartCustom({ data, setDataSelected }: { data: Metri
                         left: 0,
                         bottom: 0,
                     }}
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     onClick={(e: any) => {
                         setDataSelected(e.activePayload);
                     }}
                 >
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="created_at" tickFormatter={(value) => new Date(value).toLocaleDateString()} />
-                    <YAxis domain={[Math.round(min * 0.9), Math.round(max * 1.1)]} />
+                    <YAxis domain={[Math.round(min * 0.9), Math.round(max * 1.1)]} interval={"preserveStartEnd"} />
                     <Legend />
                     <Tooltip content={<CustomTooltip />} />
                     {uniqueKeys.map((key, index) => (

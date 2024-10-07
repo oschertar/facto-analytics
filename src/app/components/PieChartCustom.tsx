@@ -2,12 +2,13 @@ import React from 'react';
 import { Tooltip, PieChart, Pie, Cell, Legend, ResponsiveContainer } from 'recharts';
 import { Metric } from '../types/Metric';
 import { Box, Text } from '@chakra-ui/react';
+import { COLORS } from '../types/Constants';
+import theme from '../theme';
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
+
 const RADIAN = Math.PI / 180;
 
 export default function PieChartCustom({ data }: { data: Metric[] }) {
-
 
     const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: { cx: number, cy: number, midAngle: number, innerRadius: number, outerRadius: number, percent: number }) => {
         const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
@@ -24,11 +25,11 @@ export default function PieChartCustom({ data }: { data: Metric[] }) {
     const total = data.reduce((acc, obj) => acc + obj.value, 0);
 
     return (
-        <Box w={'50%'}>
-            <Text fontWeight={'bold'}>
+        <Box py="4" px="0" display={'flex'} justifyContent={'center'} alignItems={'center'} flexDirection={'column'} bg={theme.colors.gray[800]} p={4} w={'50%'}>
+            <Text fontWeight={'bold'} fontSize={"xl"}>
                 Total of events: {total}
             </Text>
-            <ResponsiveContainer width={"100%"} height={600}>
+            <ResponsiveContainer width={"100%"} height={500}>
                 <PieChart width={600} height={600}>
                     <Legend />
                     <Tooltip />
