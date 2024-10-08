@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Box, Button, FormControl, FormLabel, Input, Textarea, VStack } from '@chakra-ui/react';
+import { Box, Button, FormControl, FormLabel, Input, Textarea, useToast, VStack } from '@chakra-ui/react';
 import { Metric } from '../types/Metric';
 
 export default function EmitEventsPage() {
@@ -13,6 +13,8 @@ export default function EmitEventsPage() {
         props: '',
         account: 0,
     });
+
+    const toast = useToast();
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -40,8 +42,20 @@ export default function EmitEventsPage() {
             const result = await response.json();
             if (response.ok) {
                 console.log('Metric sent successfully:', result);
+                toast({
+                    title: `Success!! Metric sent successfully`,
+                    status: "success",
+                    duration: 3000,
+
+                })
             } else {
                 console.error('Error sending metric:', result.error);
+                toast({
+                    title: `Error sending metric`,
+                    status: "error",
+                    duration: 3000,
+                    isClosable: true,
+                })
             }
         } catch (error) {
             console.error('Error:', error);

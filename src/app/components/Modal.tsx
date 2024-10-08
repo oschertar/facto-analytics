@@ -17,7 +17,7 @@ export default function ModalCustom({ modalTitle, isOpen, onClose, children }: {
 
                 <ModalFooter>
                     <Button colorScheme='blue' mr={3} onClick={onClose}>
-                        Close
+                        Ok
                     </Button>
 
                 </ModalFooter>

@@ -22,7 +22,6 @@ const Dashboard = () => {
 
   const [dataSelected, setDataSelected] = useState<[]>([]);
 
-  const { isOpen: isOpenCustomModal, onOpen: onOpenCustomModal, onClose: onCloseCustomModal } = useDisclosure();
 
   const fetchTypeNames = async () => {
     const response = await fetch('/api/getNameMetrics');
