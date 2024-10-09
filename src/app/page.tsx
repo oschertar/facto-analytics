@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { Box, Button, Spinner, Text, Input, Flex, Stat, StatLabel, StatNumber, StatHelpText, HStack, useDisclosure } from '@chakra-ui/react';
+import { Box, Button, Spinner, Text, Input, Flex, Stat, StatLabel, StatNumber, StatHelpText, HStack } from '@chakra-ui/react';
 import { MetricResponse } from './types/Metric';
 import LineChartCustom from './components/LineChartCustom';
 import {

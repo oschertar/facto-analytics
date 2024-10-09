@@ -1,18 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { Box, Button, FormControl, FormLabel, Input, Textarea, useToast, VStack } from '@chakra-ui/react';
+import { Box, Button, FormControl, FormLabel, Input, Text, Textarea, useToast, VStack } from '@chakra-ui/react';
 import { Metric } from '../types/Metric';
 
 export default function EmitEventsPage() {
     const [isLoading, setIsLoading] = useState(false);
-    const [formData, setFormData] = useState<Metric>({
-        created_at: '',
-        name: '',
-        value: 0,
-        props: '',
-        account: 0,
-    });
+    const [formData, setFormData] = useState<Metric>();
 
     const toast = useToast();
 
@@ -31,11 +25,11 @@ export default function EmitEventsPage() {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    created_at: formData.created_at || new Date().toISOString(),
-                    name: formData.name,
-                    value: formData.value,
-                    props: formData.props || null,
-                    account: formData.account,
+                    created_at: formData?.created_at || new Date().toISOString(),
+                    name: formData?.name,
+                    value: formData?.value,
+                    props: formData?.props || null,
+                    account: formData?.account,
                 }),
             });
 
@@ -45,7 +39,7 @@ export default function EmitEventsPage() {
                 toast({
                     title: `Success!! Metric sent successfully`,
                     status: "success",
-                    duration: 3000,
+                    duration: 2000000,
 
                 })
             } else {
@@ -66,14 +60,14 @@ export default function EmitEventsPage() {
 
 
     return <Box p="6">
-        <h2>New Metric</h2>
+        <Text fontSize={"2xl"} mb={4}>Emit Events Page</Text>
         <VStack as="form" spacing="4" onSubmit={handleSubmit}>
             <FormControl>
                 <FormLabel>Creation Date</FormLabel>
                 <Input
                     type="datetime-local"
                     name="created_at"
-                    value={formData.created_at}
+                    value={formData?.created_at}
                     onChange={handleChange}
                     placeholder="Enter creation date (optional)"
                 />
@@ -84,7 +78,7 @@ export default function EmitEventsPage() {
                 <Input
                     type="text"
                     name="name"
-                    value={formData.name}
+                    value={formData?.name}
                     onChange={handleChange}
                     placeholder="Enter the event name"
                 />
@@ -95,7 +89,7 @@ export default function EmitEventsPage() {
                 <Input
                     type="text"
                     name="value"
-                    value={formData.value}
+                    value={formData?.value}
                     onChange={handleChange}
                     placeholder="Enter the event value"
                 />
@@ -105,7 +99,7 @@ export default function EmitEventsPage() {
                 <FormLabel>Props</FormLabel>
                 <Textarea
                     name="props"
-                    value={formData.props}
+                    value={formData?.props}
                     onChange={handleChange}
                     placeholder="Enter additional properties (optional)"
                 />
@@ -116,7 +110,7 @@ export default function EmitEventsPage() {
                 <Input
                     type="text"
                     name="account"
-                    value={formData.account}
+                    value={formData?.account}
                     onChange={handleChange}
                     placeholder="Enter the account ID"
                 />
