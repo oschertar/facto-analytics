@@ -127,7 +127,7 @@ const Dashboard = () => {
             />
           </Box>
         ) : null}
-        <Button onClick={handleSubmit} colorScheme="blue">
+        <Button onClick={handleSubmit} colorScheme="blue" type="submit">
           Submit
         </Button>
       </Flex>
@@ -137,13 +137,13 @@ const Dashboard = () => {
           <Text fontSize={'3xl'} fontWeight={"bold"} mt={4} mb={4}>Data along this period</Text>
           <HStack gap={4} wrap={'wrap'} mb={4}>
             <Stat>
-              <StatLabel>Highest number of {data.statistics.name}</StatLabel>
+              <StatLabel>Highest number of {data.statistics.max.name}</StatLabel>
               <StatNumber>{data.statistics.max.value}</StatNumber>
               <StatHelpText>{data.statistics.max.date}</StatHelpText>
             </Stat>
 
             <Stat>
-              <StatLabel>Lowest number of {data.statistics.name}</StatLabel>
+              <StatLabel>Lowest number of {data.statistics.min.name}</StatLabel>
               <StatNumber>{data.statistics.min.value}</StatNumber>
               <StatHelpText>{data.statistics.min.date}</StatHelpText>
             </Stat>

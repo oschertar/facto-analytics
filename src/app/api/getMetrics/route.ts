@@ -71,8 +71,20 @@ export async function GET(req: Request) {
     const response = {
       results: dataResponse,
       statistics: {
-        max: { value: maxValue, date: formatDate(maxObject?.created_at) },
-        min: { value: minValue, date: formatDate(minObject?.created_at) },
+        max: {
+          value: maxValue,
+          date: formatDate(maxObject?.created_at),
+          name: Object.keys(maxObject).find(
+            (key) => maxObject[key] === maxValue
+          ),
+        },
+        min: {
+          value: minValue,
+          date: formatDate(minObject?.created_at),
+          name: Object.keys(minObject).find(
+            (key) => minObject[key] === minValue
+          ),
+        },
       },
     };
 

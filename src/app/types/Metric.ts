@@ -11,10 +11,12 @@ export interface Statistics {
   max: {
     value: number;
     date: string;
+    name: string;
   };
   min: {
     value: number;
     date: string;
+    name: string;
   };
   average: number | null;
   total: number;
