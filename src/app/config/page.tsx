@@ -32,6 +32,7 @@ export default function ConfigPage() {
                 isClosable: true,
             })
         } else {
+
             setConfigs((prevConfigs) =>
                 prevConfigs.map((prevConfig) =>
                     prevConfig.id === config.id
@@ -75,9 +76,7 @@ export default function ConfigPage() {
                 isClosable: true,
             })
         } else {
-            const updatedConfigs = [...configs];
-            updatedConfigs.push(result.data);
-            setConfigs(updatedConfigs);
+            setConfigs((prevConfigs) => [...prevConfigs, result.data]);
             setName('')
             toast({
                 title: `Account created successfully`,

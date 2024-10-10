@@ -3,7 +3,7 @@ describe("Metric", () => {
     const NAME_EVENT = "click_cta";
     const VALUE_EVENT = "10";
     const ACCOUNT_ID = "1";
-    cy.intercept("POST", "/api/postMetric", {
+    cy.intercept("POST", "/api/metrics", {
       statusCode: 200,
       body: {
         message: "Metric sent successfully",

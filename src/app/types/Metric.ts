@@ -2,9 +2,9 @@ export interface Metric {
   id?: number;
   created_at?: string;
   name?: string;
-  value?: number;
+  value?: string | number;
   props?: string;
-  account?: number;
+  account?: string | number;
 }
 
 export interface Statistics {

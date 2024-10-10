@@ -10,12 +10,24 @@ export async function GET(req: Request) {
     const name = searchParams.get("name");
     const from = searchParams.get("from");
     const to = searchParams.get("to");
+    const account = searchParams.get("account");
+
+    if (!account) {
+      return NextResponse.json(
+        { error: "Missing parameters" },
+        { status: 400 }
+      );
+    }
 
     let query = supabase.from("metrics").select("*");
 
     if (name) {
       const names = name.split(",");
       query = query.in("name", names);
+    }
+
+    if (account) {
+      query = query.eq("account", account);
     }
 
     if (from && to) {
@@ -118,6 +130,40 @@ export async function GET(req: Request) {
   } catch (error) {
     return NextResponse.json(
       { error: `Error fetching data ${error}` },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
+
+    const { created_at, name, value, props, account } = body;
+    if (!created_at || !name || !value || !account) {
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
+    const { data, error } = await supabase
+      .from("metrics")
+      .insert([{ created_at, name, value, props, account }])
+      .select()
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json(
+      { message: "Metric added successfully", data },
+      { status: 201 }
+    );
+  } catch (error) {
+    return NextResponse.json(
+      { error: `Error processing request ${error}` },
       { status: 500 }
     );
   }

@@ -41,7 +41,7 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json(
-      { message: "Config account added successfully", data },
+      { message: "Config account added successfully", data: data[0] },
       { status: 201 }
     );
   } catch (error) {

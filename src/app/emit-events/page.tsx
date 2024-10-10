@@ -8,9 +8,9 @@ const INITIAL_STATE = {
     id: undefined,
     created_at: '',
     name: '',
-    value: undefined,
+    value: '',
     props: '',
-    account: undefined,
+    account: '',
 };
 
 export default function EmitEventsPage() {
@@ -29,7 +29,7 @@ export default function EmitEventsPage() {
         e.preventDefault();
         setIsLoading(true);
         try {
-            const response = await fetch('/api/postMetric', {
+            const response = await fetch('/api/metrics', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -44,22 +44,21 @@ export default function EmitEventsPage() {
             });
 
             const result = await response.json();
-            if (response.ok) {
-                setFormData(INITIAL_STATE);
-                toast({
-                    title: `Success! Metric sent successfully`,
-                    status: "success",
-                    duration: 3000,
-
-                })
-
-            } else {
+            if (result.error) {
                 console.error('Error sending metric:', result.error);
                 toast({
                     title: `Error sending metric`,
                     status: "error",
                     duration: 3000,
                     isClosable: true,
+                })
+            } else {
+                setFormData(INITIAL_STATE);
+                toast({
+                    title: `Success! Metric sent successfully`,
+                    status: "success",
+                    duration: 3000,
+
                 })
             }
         } catch (error) {
@@ -128,7 +127,7 @@ export default function EmitEventsPage() {
 
             <FormControl isRequired w={"80%"}>
                 <FormLabel>Account</FormLabel>
-                <Select value={formData?.account} onChange={() => handleChange} name='account'>
+                <Select value={formData?.account} onChange={handleChange} name='account'>
                     <option value="">Select an account</option>
                     {configs.map((config) => (
                         <option key={config.id} value={config.id}>

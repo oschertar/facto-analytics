@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { Box, Button, Spinner, Text, Input, Flex, Stat, StatLabel, StatNumber, StatHelpText, HStack, useToast } from '@chakra-ui/react';
+import { Box, Button, Spinner, Text, Input, Flex, Stat, StatLabel, StatNumber, StatHelpText, HStack, useToast, Select } from '@chakra-ui/react';
 import { MetricResponse } from './types/Metric';
 import LineChartCustom from './components/LineChartCustom';
 import {
@@ -21,6 +21,8 @@ const Dashboard = () => {
   const [filterName, setFilterName] = useState<string[]>([]);
   const [typeNames, setTypeNames] = useState<SelectOption[]>([]);
   const [dataSelected, setDataSelected] = useState<[]>([]);
+  const [configs, setConfigs] = useState<any[]>([]);
+  const [configSelected, setConfigSelected] = useState<string>('');
   const toast = useToast();
 
 
@@ -29,8 +31,18 @@ const Dashboard = () => {
     const result = await response.json();
     setTypeNames(result);
     setLoading(false);
-
   };
+
+  const getAccountsAvailables = async () => {
+    const response = await fetch('/api/config');
+    const result = await response.json();
+    setConfigs(result.data);
+  }
+
+  const handleChangeSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setConfigSelected(e.target.value);
+  };
+
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -38,7 +50,7 @@ const Dashboard = () => {
     const paramsQuery = new URLSearchParams({});
 
     try {
-      const query = '/api/getMetrics';
+      const query = '/api/metrics';
 
       if (fromDate) {
         paramsQuery.set('from', fromDate);
@@ -48,6 +60,9 @@ const Dashboard = () => {
       }
       if (filterName) {
         paramsQuery.set('name', filterName.join(','));
+      }
+      if (configSelected) {
+        paramsQuery.set('account', configSelected);
       }
 
       const response = await fetch(`${query}?${paramsQuery.toString()}`);
@@ -63,7 +78,7 @@ const Dashboard = () => {
     } finally {
       setLoading(false);
     }
-  }, [fromDate, toDate, filterName]);
+  }, [fromDate, toDate, filterName, configSelected]);
 
   const handleSubmit = () => {
     if (filterName) {
@@ -74,13 +89,14 @@ const Dashboard = () => {
 
   useEffect(() => {
     fetchTypeNames();
+    getAccountsAvailables();
   }, []);
 
   const customComponentsSelect = {
-    Input: (props) => (
+    Input: () => (
       <Box>
         {filterName.length > 0 && (
-          <Box style={{ padding: '8px', fontWeight: 'bold' }}>
+          <Box style={{ fontWeight: 'bold' }}>
             <Text>{filterName.length} option{filterName.length > 1 ? 's' : ''} selected</Text>
           </Box>
         )}
@@ -114,6 +130,18 @@ const Dashboard = () => {
             min={fromDate}
           />
         </Box>
+        {configs.length ? (
+          <Box>
+            <Select value={configSelected} onChange={(ev) => handleChangeSelect(ev)}>
+              <option value="">Select an account</option>
+              {configs.map((config) => (
+                <option key={config.id} value={config.id}>
+                  {config.name}
+                </option>
+              ))}
+            </Select>
+          </Box>
+        ) : null}
         {typeNames.length ? (
           <Box>
             <Text>Type:</Text>
@@ -122,6 +150,7 @@ const Dashboard = () => {
               selectedOptionStyle="check"
               isMulti
               defaultOptions={typeNames}
+              className="select-events"
               name="events"
               placeholder="Select some events..."
               closeMenuOnSelect={false}

@@ -6,7 +6,7 @@ describe("Dashboard", () => {
   });
 
   it("should show the dashboard page with data", () => {
-    cy.intercept("GET", "/api/getMetrics", {
+    cy.intercept("GET", "/api/metrics", {
       statusCode: 200,
       body: {
         message: "Data retrieved successfully",
@@ -62,10 +62,12 @@ describe("Dashboard", () => {
 
     cy.get('input[type="date"]:first').should("be.visible").type("2024-08-25");
     cy.get('input[type="date"]:last').should("be.visible").type("2024-08-31");
-    cy.get('input[type="text"]')
+    cy.get("select").should("be.visible").select("G-1245475412");
+    cy.get(".select-events")
       .should("be.visible")
       .type("click_cta")
       .type("{enter}");
+
     cy.get('button[type="submit"]').click();
 
     cy.get("div").contains("Data along this period");
