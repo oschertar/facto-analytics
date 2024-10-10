@@ -55,16 +55,38 @@ export async function GET(req: Request) {
       });
     }
 
-    const keys = Object.keys(dataResponse[0]);
+    const keys = Object.keys(dataResponse[0]).filter(
+      (key) => key !== "created_at"
+    );
     keys.forEach((key) => {
       const values = dataResponse.map((item) => item[key]);
-      if (Math.min(...values) < minValue) {
-        minValue = Math.min(...values);
-        minObject = dataResponse.find((item) => item[key] === minValue);
-      }
-      if (Math.max(...values) > maxValue) {
-        maxValue = Math.max(...values);
-        maxObject = dataResponse.find((item) => item[key] === maxValue);
+      const numericValues = values.filter(
+        (value): value is number => typeof value === "number"
+      );
+
+      if (numericValues.length > 0) {
+        const minValueForKey = Math.min(...numericValues);
+        const maxValueForKey = Math.max(...numericValues);
+
+        if (minValueForKey < minValue) {
+          minValue = minValueForKey;
+          const foundMinObject = dataResponse.find(
+            (item) => item[key] === minValue
+          );
+          if (foundMinObject) {
+            minObject = foundMinObject;
+          }
+        }
+
+        if (maxValueForKey > maxValue) {
+          maxValue = maxValueForKey;
+          const foundMaxObject = dataResponse.find(
+            (item) => item[key] === maxValue
+          );
+          if (foundMaxObject) {
+            maxObject = foundMaxObject;
+          }
+        }
       }
     });
 

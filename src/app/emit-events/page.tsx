@@ -1,12 +1,22 @@
 'use client';
 
-import { useState } from 'react';
-import { Box, Button, FormControl, FormLabel, Input, Text, Textarea, useToast, VStack } from '@chakra-ui/react';
+import { useEffect, useState } from 'react';
+import { Box, Button, FormControl, FormLabel, Input, Select, Text, useToast, VStack } from '@chakra-ui/react';
 import { Metric } from '../types/Metric';
+
+const INITIAL_STATE = {
+    id: undefined,
+    created_at: '',
+    name: '',
+    value: undefined,
+    props: '',
+    account: undefined,
+};
 
 export default function EmitEventsPage() {
     const [isLoading, setIsLoading] = useState(false);
-    const [formData, setFormData] = useState<Metric>();
+    const [configs, setConfigs] = useState<any[]>([]);
+    const [formData, setFormData] = useState<Metric>(INITIAL_STATE);
 
     const toast = useToast();
 
@@ -35,13 +45,14 @@ export default function EmitEventsPage() {
 
             const result = await response.json();
             if (response.ok) {
-                console.log('Metric sent successfully:', result);
+                setFormData(INITIAL_STATE);
                 toast({
-                    title: `Success!! Metric sent successfully`,
+                    title: `Success! Metric sent successfully`,
                     status: "success",
-                    duration: 2000000,
+                    duration: 3000,
 
                 })
+
             } else {
                 console.error('Error sending metric:', result.error);
                 toast({
@@ -58,11 +69,21 @@ export default function EmitEventsPage() {
         }
     };
 
+    const getAccountsAvailables = async () => {
+        const response = await fetch('/api/config');
+        const result = await response.json();
+        setConfigs(result.data);
+    }
+
+    useEffect(() => {
+        getAccountsAvailables();
+    }, []);
+
 
     return <Box p="6">
         <Text fontSize={"2xl"} mb={4}>Emit Events Page</Text>
         <VStack as="form" spacing="4" onSubmit={handleSubmit}>
-            <FormControl>
+            <FormControl w={"80%"}>
                 <FormLabel>Creation Date</FormLabel>
                 <Input
                     type="datetime-local"
@@ -73,7 +94,7 @@ export default function EmitEventsPage() {
                 />
             </FormControl>
 
-            <FormControl isRequired>
+            <FormControl isRequired w={"80%"}>
                 <FormLabel>Name</FormLabel>
                 <Input
                     type="text"
@@ -84,7 +105,7 @@ export default function EmitEventsPage() {
                 />
             </FormControl>
 
-            <FormControl isRequired>
+            <FormControl isRequired w={"80%"}>
                 <FormLabel>Value</FormLabel>
                 <Input
                     type="text"
@@ -95,7 +116,7 @@ export default function EmitEventsPage() {
                 />
             </FormControl>
 
-            <FormControl>
+            {/* <FormControl w={"80%"}>
                 <FormLabel>Props</FormLabel>
                 <Textarea
                     name="props"
@@ -103,17 +124,19 @@ export default function EmitEventsPage() {
                     onChange={handleChange}
                     placeholder="Enter additional properties (optional)"
                 />
-            </FormControl>
+            </FormControl> */}
 
-            <FormControl isRequired>
-                <FormLabel>Account ID</FormLabel>
-                <Input
-                    type="text"
-                    name="account"
-                    value={formData?.account}
-                    onChange={handleChange}
-                    placeholder="Enter the account ID"
-                />
+            <FormControl isRequired w={"80%"}>
+                <FormLabel>Account</FormLabel>
+                <Select value={formData?.account} onChange={() => handleChange} name='account'>
+                    <option value="">Select an account</option>
+                    {configs.map((config) => (
+                        <option key={config.id} value={config.id}>
+                            {config.name}
+                        </option>
+                    ))}
+                </Select>
+
             </FormControl>
 
             <Button type="submit" colorScheme="blue" isLoading={isLoading}>

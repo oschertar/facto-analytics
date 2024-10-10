@@ -27,7 +27,7 @@ describe("Metric", () => {
 
     cy.url().should("include", "/emit-events");
 
-    cy.get("div").contains("Success!! Metric sent successfully");
+    cy.get("div").contains("Success! Metric sent successfully");
   });
 
   it("shouldn't send a metric", () => {

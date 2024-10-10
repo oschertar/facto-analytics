@@ -11,9 +11,50 @@ export default function ConfigPage() {
     const [name, setName] = useState('');
     const toast = useToast();
 
+    const updateConfig = async (config: any) => {
+        const response = await fetch('/api/config', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                id: config.id,
+                enabled: !config.enabled,
+            }),
+        })
 
-    const submitForm = async (e: React.FormEvent) => {
-        e.preventDefault();
+        const result = await response.json();
+        if (result.error) {
+            toast({
+                title: `Error updating config`,
+                status: "error",
+                duration: 3000,
+                isClosable: true,
+            })
+        } else {
+            setConfigs((prevConfigs) =>
+                prevConfigs.map((prevConfig) =>
+                    prevConfig.id === config.id
+                        ? { ...prevConfig, enabled: !config.enabled }
+                        : prevConfig
+                )
+            );
+            toast({
+                title: `Config updated successfully`,
+                status: "success",
+                duration: 3000,
+
+            })
+        }
+
+    }
+    const getAccountsAvailables = async () => {
+        const response = await fetch('/api/config');
+        const result = await response.json();
+        setConfigs(result.data);
+    }
+
+    const submitForm = async () => {
         const response = await fetch('/api/config', {
             method: 'POST',
             headers: {
@@ -34,7 +75,9 @@ export default function ConfigPage() {
                 isClosable: true,
             })
         } else {
-            setConfigs((prevState: any[]) => [...prevState, result.data])
+            const updatedConfigs = [...configs];
+            updatedConfigs.push(result.data);
+            setConfigs(updatedConfigs);
             setName('')
             toast({
                 title: `Account created successfully`,
@@ -49,13 +92,8 @@ export default function ConfigPage() {
     };
 
     useEffect(() => {
-        fetch('/api/config')
-            .then((response) => response.json())
-            .then((res) => {
-                setConfigs(res.data);
-            });
+        getAccountsAvailables();
     }, []);
-
 
     return <Box>
         <Flex justifyContent={"space-between"}>
@@ -79,7 +117,7 @@ export default function ConfigPage() {
                             <Tr key={config.id}>
                                 <Td>{config.id}</Td>
                                 <Td>{config.name}</Td>
-                                <Td>{config.enabled ? <CheckIcon color={"#2ecc71"} /> : <CloseIcon />}</Td>
+                                <Td><Button onClick={() => updateConfig(config)}>{config.enabled ? <CheckIcon color={"#2ecc71"} /> : <CloseIcon />}</Button></Td>
                             </Tr>
                         ))}
                     </Tbody>
@@ -87,7 +125,7 @@ export default function ConfigPage() {
                 </Table>
             </TableContainer>
             : null}
-        <ModalCustom modalTitle={'Add new account'} isOpen={isOpenCustomModal} onClose={(ev) => { submitForm(ev) }}>
+        <ModalCustom modalTitle={'Add new account'} isOpen={isOpenCustomModal} onClose={() => { submitForm() }}>
             <Box>
                 <Text>Add new account</Text>
                 <Input placeholder='Account name' value={name} onChange={(e) => setName(e.target.value)} />

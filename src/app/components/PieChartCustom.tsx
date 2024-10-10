@@ -25,7 +25,7 @@ export default function PieChartCustom({ data }: { data: Metric[] }) {
     const total = data.reduce((acc, obj) => acc + obj.value, 0);
 
     return (
-        <Box py="4" px="0" display={'flex'} justifyContent={'center'} alignItems={'center'} flexDirection={'column'} bg={theme.colors.gray[800]} p={4} w={'50%'}>
+        <Box py="4" px="0" display={'flex'} justifyContent={'center'} alignItems={'center'} flexDirection={'column'} bg={theme.colors.gray[800]} p={4} w={['100%', '100%', '50%']}>
             <Text fontWeight={'bold'} fontSize={"xl"}>
                 Total of events: {total}
             </Text>

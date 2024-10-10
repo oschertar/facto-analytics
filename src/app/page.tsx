@@ -1,15 +1,17 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { Box, Button, Spinner, Text, Input, Flex, Stat, StatLabel, StatNumber, StatHelpText, HStack } from '@chakra-ui/react';
+import { Box, Button, Spinner, Text, Input, Flex, Stat, StatLabel, StatNumber, StatHelpText, HStack, useToast } from '@chakra-ui/react';
 import { MetricResponse } from './types/Metric';
 import LineChartCustom from './components/LineChartCustom';
 import {
   AsyncSelect,
 } from "chakra-react-select";
 import { SelectOption } from './types/SelectOption';
-import ModalCustom from './components/Modal';
 import DetailsDateSelected from './components/DetailsDateSelected';
+import { COLORS } from './types/Constants';
+
+const LIMIT_OPTIONS = COLORS.length
 
 const Dashboard = () => {
   const [data, setData] = useState<MetricResponse | null>(null);
@@ -18,9 +20,8 @@ const Dashboard = () => {
   const [toDate, setToDate] = useState('');
   const [filterName, setFilterName] = useState<string[]>([]);
   const [typeNames, setTypeNames] = useState<SelectOption[]>([]);
-  //const [dataShowing, setDataShowing] = useState<React.ReactNode>(null);
-
   const [dataSelected, setDataSelected] = useState<[]>([]);
+  const toast = useToast();
 
 
   const fetchTypeNames = async () => {
@@ -32,7 +33,7 @@ const Dashboard = () => {
   };
 
   const fetchData = useCallback(async () => {
-    // setLoading(true);
+    setLoading(true);
 
     const paramsQuery = new URLSearchParams({});
 
@@ -60,7 +61,7 @@ const Dashboard = () => {
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
-      //setLoading(false);
+      setLoading(false);
     }
   }, [fromDate, toDate, filterName]);
 
@@ -75,10 +76,21 @@ const Dashboard = () => {
     fetchTypeNames();
   }, []);
 
+  const customComponentsSelect = {
+    Input: (props) => (
+      <Box>
+        {filterName.length > 0 && (
+          <Box style={{ padding: '8px', fontWeight: 'bold' }}>
+            <Text>{filterName.length} option{filterName.length > 1 ? 's' : ''} selected</Text>
+          </Box>
+        )}
+      </Box>
+    ),
+    MultiValue: () => {
+      return (<></>);
+    },
+  };
 
-
-
-  if (loading) return <Spinner />;
 
   return (
     <Box p="4" overflow='visible'>
@@ -117,13 +129,23 @@ const Dashboard = () => {
                 const values = typeNames.filter((i) =>
                   i.label.toLowerCase().includes(inputValue.toLowerCase())
                 );
-                if (values.length <= 5) {
-                  callback(values);
-                }
+                callback(values);
               }}
               onChange={(selectedOptions) => {
+                if (selectedOptions.length > LIMIT_OPTIONS) {
+                  toast({
+                    title: `Max options selected ${LIMIT_OPTIONS}.`,
+                    status: "warning",
+                    duration: 3000,
+                    isClosable: true,
+                  });
+                  return;
+                }
                 setFilterName(selectedOptions.map((option) => option.value));
               }}
+              hideSelectedOptions={false}
+              isClearable={true}
+              components={customComponentsSelect}
             />
           </Box>
         ) : null}
@@ -147,24 +169,14 @@ const Dashboard = () => {
               <StatNumber>{data.statistics.min.value}</StatNumber>
               <StatHelpText>{data.statistics.min.date}</StatHelpText>
             </Stat>
-
           </HStack>
-
           <LineChartCustom data={data.results} setDataSelected={setDataSelected} />
-
         </Box>
-
         : <Text>No data found. Use the filters to search for data.</Text>
-
       }
 
-      {/* <ModalCustom modalTitle={'Details of this date'} isOpen={isOpenCustomModal} onClose={onCloseCustomModal}>
-        {dataShowing}
-      </ModalCustom> */}
       <DetailsDateSelected data={dataSelected} />
-
-
-
+      {loading ? <Spinner /> : null}
     </Box>
   );
 };
