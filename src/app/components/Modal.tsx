@@ -2,7 +2,7 @@ import { Button, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, 
 import React from 'react'
 
 
-export default function ModalCustom({ modalTitle, isOpen, onClose, children }: { modalTitle: string, isOpen: boolean, onClose: () => void, children: React.ReactNode }) {
+export default function ModalCustom({ modalTitle, isOpen, onClose, onSubmit, children }: { modalTitle: string, isOpen: boolean, onClose: () => void, onSubmit: () => void, children: React.ReactNode }) {
 
     return (
 
@@ -16,7 +16,7 @@ export default function ModalCustom({ modalTitle, isOpen, onClose, children }: {
                 </ModalBody>
 
                 <ModalFooter>
-                    <Button colorScheme='blue' mr={3} onClick={onClose}>
+                    <Button colorScheme='blue' mr={3} onClick={onSubmit}>
                         Ok
                     </Button>
 

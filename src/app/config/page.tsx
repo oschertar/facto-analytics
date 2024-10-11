@@ -4,14 +4,15 @@ import { CheckIcon, CloseIcon } from "@chakra-ui/icons";
 import { Box, Button, Flex, Input, Table, TableCaption, TableContainer, Tbody, Td, Text, Th, Thead, Tr, useDisclosure, useToast } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import ModalCustom from "../components/Modal";
+import { Config } from "../types/Config";
 
 export default function ConfigPage() {
-    const [configs, setConfigs] = useState<any[]>([]);
+    const [configs, setConfigs] = useState<Config[]>([]);
     const { isOpen: isOpenCustomModal, onOpen: onOpenCustomModal, onClose: onCloseCustomModal } = useDisclosure();
     const [name, setName] = useState('');
     const toast = useToast();
 
-    const updateConfig = async (config: any) => {
+    const updateConfig = async (config: Config) => {
         const response = await fetch('/api/config', {
             method: 'PUT',
             headers: {
@@ -124,7 +125,7 @@ export default function ConfigPage() {
                 </Table>
             </TableContainer>
             : null}
-        <ModalCustom modalTitle={'Add new account'} isOpen={isOpenCustomModal} onClose={() => { submitForm() }}>
+        <ModalCustom modalTitle={'Add new account'} isOpen={isOpenCustomModal} onClose={onCloseCustomModal} onSubmit={submitForm}>
             <Box>
                 <Text>Add new account</Text>
                 <Input placeholder='Account name' value={name} onChange={(e) => setName(e.target.value)} />
