@@ -67,6 +67,7 @@ const Dashboard = () => {
       }
 
       const response = await fetch(`${query}?${paramsQuery.toString()}`);
+
       const result = await response.json();
 
       if (response.status === 200 && result.message === "Data not found for this account") {
@@ -79,12 +80,18 @@ const Dashboard = () => {
         return null;
       }
 
-      if (!response.ok) {
+      if (!response.ok && response.status !== 200) {
         throw new Error('Error fetching data');
       }
 
       setData(result);
     } catch (error) {
+      setData(null);
+      toast({
+        title: "Error fetching data. All fields are required.",
+        status: "error",
+        duration: 3000,
+      });
       console.error('Error fetching data:', error);
     } finally {
       setLoading(false);
@@ -143,7 +150,7 @@ const Dashboard = () => {
         </Box>
         {configs.length ? (
           <Box>
-            <Select value={configSelected} onChange={(ev) => handleChangeSelect(ev)}>
+            <Select value={configSelected} onChange={(ev) => handleChangeSelect(ev)} required>
               <option value="">Select an account</option>
               {configs.map((config) => (
                 <option key={config.id} value={config.id}>

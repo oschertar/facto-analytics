@@ -1,13 +1,14 @@
 import React from 'react';
 import { XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area } from 'recharts';
 import { Metric } from '../types/Metric';
-import { Box } from '@chakra-ui/react';
+import { Box, useColorModeValue } from '@chakra-ui/react';
 import { formatDate } from '../utils/utils';
 import { COLORS } from '../types/Constants';
 import theme from '../theme';
 
 
 export default function LineChartCustom({ data, setDataSelected }: { data: Metric[], setDataSelected: (data: any) => void }) {
+    const bgColor = useColorModeValue(theme.colors.gray[100], theme.colors.gray[800]);
     const uniqueKeys: string[] = [];
 
     data.flatMap(obj => Object.keys(obj)).forEach(key => {
@@ -26,7 +27,7 @@ export default function LineChartCustom({ data, setDataSelected }: { data: Metri
 
 
     return (
-        <Box py="4" px="0" display={'flex'} justifyContent={'center'} alignItems={'center'} bg={theme.colors.gray[800]} p={4}>
+        <Box py="4" px="0" display={'flex'} justifyContent={'center'} alignItems={'center'} bg={bgColor} p={4}>
             <ResponsiveContainer width="80%" height={600}>
                 <AreaChart
                     width={500}
