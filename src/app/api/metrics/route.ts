@@ -19,30 +19,20 @@ export async function GET(req: Request) {
       );
     }
 
-    let query = supabase.from("metrics").select("*");
-
-    if (name) {
-      const names = name.split(",");
-      query = query.in("name", names);
-    }
-
-    if (account) {
-      query = query.eq("account", account);
-    }
-
-    if (from && to) {
-      query = query.gte("created_at", from).lte("created_at", to);
-    } else if (from) {
-      query = query.gte("created_at", from);
-    } else if (to) {
-      query = query.lte("created_at", to);
-    } else {
-      const yesterday = new Date();
-      yesterday.setDate(yesterday.getDate() - 1);
-      query = query.gte("created_at", yesterday.toISOString());
-    }
+    const query = getQuery(name, account, from, to);
 
     const { data, error } = await query;
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    if (!data || data.length === 0) {
+      return NextResponse.json(
+        { message: "Data not found for this account" },
+        { status: 200 }
+      );
+    }
 
     const dataResponse: DataResponseItem[] = [];
 
@@ -72,9 +62,7 @@ export async function GET(req: Request) {
     );
     keys.forEach((key) => {
       const values = dataResponse.map((item) => item[key]);
-      const numericValues = values.filter(
-        (value): value is number => typeof value === "number"
-      );
+      const numericValues = values.filter((value) => typeof value === "number");
 
       if (numericValues.length > 0) {
         const minValueForKey = Math.min(...numericValues);
@@ -102,29 +90,16 @@ export async function GET(req: Request) {
       }
     });
 
-    const response = {
-      results: dataResponse,
-      statistics: {
-        max: {
-          value: maxValue,
-          date: formatDate(maxObject?.created_at),
-          name: Object.keys(maxObject).find(
-            (key) => maxObject[key] === maxValue
-          ),
-        },
-        min: {
-          value: minValue,
-          date: formatDate(minObject?.created_at),
-          name: Object.keys(minObject).find(
-            (key) => minObject[key] === minValue
-          ),
-        },
-      },
-    };
+    const averages = getAverages(dataResponse);
 
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
+    const response = getResponseData(
+      dataResponse,
+      maxValue,
+      minValue,
+      maxObject,
+      minObject,
+      averages
+    );
 
     return NextResponse.json(response, { status: 200 });
   } catch (error) {
@@ -168,3 +143,78 @@ export async function POST(request: Request) {
     );
   }
 }
+
+const getQuery = (
+  name: string | null,
+  account: string | null,
+  from: string | null,
+  to: string | null
+) => {
+  let query = supabase.from("metrics").select("*");
+
+  if (name) {
+    const names = name.split(",");
+    query = query.in("name", names);
+  }
+
+  if (account) {
+    query = query.eq("account", account);
+  }
+
+  if (from && to) {
+    query = query.gte("created_at", from).lte("created_at", to);
+  } else if (from) {
+    query = query.gte("created_at", from);
+  } else if (to) {
+    query = query.lte("created_at", to);
+  } else {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    query = query.gte("created_at", yesterday.toISOString());
+  }
+
+  return query;
+};
+
+const getResponseData = (
+  dataResponse: DataResponseItem[],
+  maxValue: number,
+  minValue: number,
+  maxObject: DataResponseItem,
+  minObject: DataResponseItem,
+  averages: number
+) => {
+  return {
+    message: "Data fetched successfully",
+    results: dataResponse,
+    statistics: {
+      max: {
+        value: maxValue,
+        date: formatDate(maxObject?.created_at),
+        name: Object.keys(maxObject).find((key) => maxObject[key] === maxValue),
+      },
+      min: {
+        value: minValue,
+        date: formatDate(minObject?.created_at),
+        name: Object.keys(minObject).find((key) => minObject[key] === minValue),
+      },
+      average: averages.toFixed(2),
+    },
+  };
+};
+
+const getAverages = (dataResponse: DataResponseItem[]) => {
+  const keys = Object.keys(dataResponse[0]).filter(
+    (key) => key !== "created_at"
+  );
+
+  let total = 0;
+
+  dataResponse.forEach((item) => {
+    keys.forEach((key) => {
+      total += parseInt(item[key as keyof DataResponseItem] as string);
+    });
+  });
+
+  return total / dataResponse.length;
+};

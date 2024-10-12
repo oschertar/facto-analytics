@@ -5,7 +5,7 @@ export function useConfigApi() {
   const [configs, setConfigs] = useState<Config[]>([]);
 
   const getAccountsAvailables = async () => {
-    const response = await fetch("/api/config");
+    const response = await fetch("/api/config?showAll=true");
     const result = await response.json();
     setConfigs(result.data);
     return result;

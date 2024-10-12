@@ -1,9 +1,17 @@
 import { supabase } from "@/utils/supabase";
 import { NextResponse } from "next/server";
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const { data, error } = await supabase.from("accounts").select("*");
+    const { searchParams } = new URL(request.url);
+    const showAll = searchParams.get("showAll");
+    let query = supabase.from("accounts").select("*");
+
+    if (!showAll) {
+      query = query.eq("enabled", true);
+    }
+
+    const { data, error } = await query;
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });

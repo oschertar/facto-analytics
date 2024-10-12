@@ -10,6 +10,7 @@ import {
 import { SelectOption } from './types/SelectOption';
 import DetailsDateSelected from './components/DetailsDateSelected';
 import { COLORS } from './types/Constants';
+import { Config } from './types/Config';
 
 const LIMIT_OPTIONS = COLORS.length
 
@@ -21,7 +22,7 @@ const Dashboard = () => {
   const [filterName, setFilterName] = useState<string[]>([]);
   const [typeNames, setTypeNames] = useState<SelectOption[]>([]);
   const [dataSelected, setDataSelected] = useState<[]>([]);
-  const [configs, setConfigs] = useState<any[]>([]);
+  const [configs, setConfigs] = useState<Config[]>([]);
   const [configSelected, setConfigSelected] = useState<string>('');
   const toast = useToast();
 
@@ -68,17 +69,27 @@ const Dashboard = () => {
       const response = await fetch(`${query}?${paramsQuery.toString()}`);
       const result = await response.json();
 
-      if (response.ok) {
-        setData(result);
-      } else {
-        console.error(result.error);
+      if (response.status === 200 && result.message === "Data not found for this account") {
+        toast({
+          title: "No data found for this account",
+          status: "warning",
+          duration: 3000,
+        });
+        setData(null);
+        return null;
       }
+
+      if (!response.ok) {
+        throw new Error('Error fetching data');
+      }
+
+      setData(result);
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
       setLoading(false);
     }
-  }, [fromDate, toDate, filterName, configSelected]);
+  }, [fromDate, toDate, filterName, configSelected, toast]);
 
   const handleSubmit = () => {
     if (filterName) {
@@ -154,6 +165,7 @@ const Dashboard = () => {
               name="events"
               placeholder="Select some events..."
               closeMenuOnSelect={false}
+              isOptionDisabled={() => filterName.length >= LIMIT_OPTIONS}
               loadOptions={(inputValue, callback) => {
                 const values = typeNames.filter((i) =>
                   i.label.toLowerCase().includes(inputValue.toLowerCase())
@@ -183,29 +195,37 @@ const Dashboard = () => {
         </Button>
       </Flex>
 
-      {data?.results.length ?
-        <Box gap={4}>
-          <Text fontSize={'3xl'} fontWeight={"bold"} mt={4} mb={4}>Data along this period</Text>
-          <HStack gap={4} wrap={'wrap'} mb={4}>
-            <Stat>
-              <StatLabel>Highest number of {data.statistics.max.name}</StatLabel>
-              <StatNumber>{data.statistics.max.value}</StatNumber>
-              <StatHelpText>{data.statistics.max.date}</StatHelpText>
-            </Stat>
+      {loading ? <Spinner /> :
+        data?.results.length ?
+          <Box gap={4}>
+            <Text fontSize={'3xl'} fontWeight={"bold"} mt={4} mb={4}>Data along this period</Text>
+            <HStack gap={4} wrap={'wrap'} mb={4}>
+              <Stat>
+                <StatLabel>Highest number of {data.statistics.max.name}</StatLabel>
+                <StatNumber>{data.statistics.max.value}</StatNumber>
+                <StatHelpText>{data.statistics.max.date}</StatHelpText>
+              </Stat>
 
-            <Stat>
-              <StatLabel>Lowest number of {data.statistics.min.name}</StatLabel>
-              <StatNumber>{data.statistics.min.value}</StatNumber>
-              <StatHelpText>{data.statistics.min.date}</StatHelpText>
-            </Stat>
-          </HStack>
-          <LineChartCustom data={data.results} setDataSelected={setDataSelected} />
-        </Box>
-        : <Text>No data found. Use the filters to search for data.</Text>
+              <Stat>
+                <StatLabel>Lowest number of {data.statistics.min.name}</StatLabel>
+                <StatNumber>{data.statistics.min.value}</StatNumber>
+                <StatHelpText>{data.statistics.min.date}</StatHelpText>
+              </Stat>
+
+              <Stat>
+                <StatLabel>Average events per day</StatLabel>
+                <StatNumber>{data.statistics.average}</StatNumber>
+                <StatHelpText>Average of all metrics</StatHelpText>
+              </Stat>
+            </HStack>
+            <LineChartCustom data={data.results} setDataSelected={setDataSelected} />
+            <DetailsDateSelected data={dataSelected} />
+          </Box>
+          : <Text>No data found. Use the filters to search for data.</Text>
+
+
+
       }
-
-      <DetailsDateSelected data={dataSelected} />
-      {loading ? <Spinner /> : null}
     </Box>
   );
 };

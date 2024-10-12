@@ -43,8 +43,11 @@ export default function LineChartCustom({ data, setDataSelected }: { data: Metri
                     }}
                 >
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="created_at" tickFormatter={(value) => new Date(value).toLocaleDateString()} />
-                    <YAxis domain={[Math.round(min * 0.9), Math.round(max * 1.1)]} interval={"preserveStartEnd"} />
+                    <XAxis dataKey="created_at" tickFormatter={(value) => new Date(value).toLocaleDateString()} type="category"
+                        allowDuplicatedCategory={false} />
+                    <YAxis domain={[Math.round(min * 0.9), Math.round(max * 1.1)]} interval={"preserveStartEnd"} allowDataOverflow={false}
+                        scale="auto"
+                        type="number" />
                     <Legend />
                     <Tooltip content={<CustomTooltip />} />
                     {uniqueKeys.map((key, index) => (
