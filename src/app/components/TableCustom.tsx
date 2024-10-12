@@ -3,7 +3,6 @@ import React from 'react'
 import { Metric } from '../types/Metric';
 
 export default function TableCustom({ data }: { data: Metric[] }) {
-    console.log({ data })
     return (
 
         <TableContainer>

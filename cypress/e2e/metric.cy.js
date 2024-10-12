@@ -20,7 +20,7 @@ describe("Metric", () => {
 
     cy.get('input[name="name"]').type(NAME_EVENT);
     cy.get('input[name="value"]').type(VALUE_EVENT);
-    cy.get('input[name="account"]').type(ACCOUNT_ID);
+    cy.get('select[name="account"]').select(ACCOUNT_ID);
     cy.get('button[type="submit"]').click();
 
     cy.wait("@postMetric");
@@ -32,13 +32,13 @@ describe("Metric", () => {
 
   it("shouldn't send a metric", () => {
     const NAME_EVENT = "click_cta";
-    const VALUE_EVENT = "10";
-    const ACCOUNT_ID = "-1";
+    const VALUE_EVENT = "-10";
+    const ACCOUNT_ID = "1";
 
-    cy.intercept("POST", "/api/postMetric", {
+    cy.intercept("POST", "/api/metrics", {
       statusCode: 400,
       body: {
-        message: "Error sending metric",
+        error: "Value cannot be negative",
         data: {
           created_at: new Date().toISOString(),
           name: NAME_EVENT,
@@ -52,7 +52,7 @@ describe("Metric", () => {
 
     cy.get('input[name="name"]').type(NAME_EVENT);
     cy.get('input[name="value"]').type(VALUE_EVENT);
-    cy.get('input[name="account"]').type(ACCOUNT_ID);
+    cy.get('select[name="account"]').select(ACCOUNT_ID);
     cy.get('button[type="submit"]').click();
 
     cy.wait("@postMetric");

@@ -122,6 +122,13 @@ export async function POST(request: Request) {
       );
     }
 
+    if (value < 0) {
+      return NextResponse.json(
+        { error: "Value cannot be negative" },
+        { status: 400 }
+      );
+    }
+
     const { data, error } = await supabase
       .from("metrics")
       .insert([{ created_at, name, value, props, account }])

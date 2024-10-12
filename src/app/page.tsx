@@ -5,7 +5,7 @@ import { Box, Button, Spinner, Text, Input, Flex, Stat, StatLabel, StatNumber, S
 import { MetricResponse } from './types/Metric';
 import LineChartCustom from './components/LineChartCustom';
 import {
-  AsyncSelect,
+  AsyncSelect, components
 } from "chakra-react-select";
 import { SelectOption } from './types/SelectOption';
 import DetailsDateSelected from './components/DetailsDateSelected';
@@ -123,6 +123,11 @@ const Dashboard = () => {
     MultiValue: () => {
       return (<></>);
     },
+    DropdownIndicator: (props: any) => (
+      <components.DropdownIndicator {...props}>
+        <div className="select-events-arrow">▼</div>
+      </components.DropdownIndicator>
+    ),
   };
 
 

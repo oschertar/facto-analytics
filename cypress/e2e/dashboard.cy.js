@@ -63,15 +63,29 @@ describe("Dashboard", () => {
     cy.get('input[type="date"]:first').should("be.visible").type("2024-08-25");
     cy.get('input[type="date"]:last').should("be.visible").type("2024-08-31");
     cy.get("select").should("be.visible").select("G-1245475412");
-    cy.get(".select-events")
-      .should("be.visible")
-      .type("click_cta")
-      .type("{enter}");
+
+    cy.get(".select-events-arrow").click();
+    cy.get("#react-select-2-listbox").contains("div", "click_cta").click();
+
+    cy.get(".select-events").should("contain", "click_cta");
 
     cy.get('button[type="submit"]').click();
 
     cy.get("div").contains("Data along this period");
     cy.get("div").contains("Highest number of click_cta");
     cy.get("div").contains("Lowest number of click_cta");
+
+    cy.get(".recharts-surface").should("be.visible");
+
+    cy.get("div").contains("Average events per day").should("be.visible");
+
+    cy.get("dd").contains("124").should("be.visible");
+    cy.get("dd").contains("50").should("be.visible");
+
+    cy.get(".recharts-layer.recharts-area").first().trigger("mouseover");
+    cy.get(".recharts-tooltip-wrapper").should("be.visible");
+
+    cy.get(".recharts-layer.recharts-area").first().click();
+    cy.get("div").contains("Details for").should("be.visible");
   });
 });
