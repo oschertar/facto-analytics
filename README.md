@@ -1,36 +1,48 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Facto Analytics
 
-## Getting Started
+This project is a simple analytics dashboard to visualize metrics data. Made with Next.js, Chakra UI, Recharts, Cypress and Supabase.
 
-First, run the development server:
+## How to run the project
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+1. Clone the repository
+2. Run `npm install` to install the dependencies
+3. Run `npm run dev` to start the project
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## How to run the tests
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Run `npm run cypress:open` to open the Cypress Test Runner
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## What does the project do?
 
-## Learn More
+The project allows you to visualize the metrics data in a dashboard. You can filter by date, account and name of the event. You can also see the funnel and pie charts. Besides, you can add new metrics to the database from the emit events page. Finally, you can configure accounts in the configuration page.
 
-To learn more about Next.js, take a look at the following resources:
+## Screenshots
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+![Dashboard](./src/img/dashboard.png)
+![Emit events](./src/img/emitpage.png)
+![Configuration](./src/img/configpage.png)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Project deployed
 
-## Deploy on Vercel
+https://facto-analytics.vercel.app
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Problems found
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Data structure
+
+- I have assumed in the basic data structure (created_at, name, value), value corresponds to the number of events accumulated of one day.
+- I've added a new field called `props` to store the properties of the event. But I didn't use it for anything because I didn't know what to do with it. The main problem is how treat this accumulated data between the different devices, countries, etc (props is used to identify the device, country, etc).
+- I've decided to add the `account` field to identify the account that is sending the events (like GA4 works)
+
+### General
+
+- Started working with ReactJS but I decided to use Next.js + Supabase, because I needed a backend to store the metrics data.
+- This is my first time working with Chakra UI, but I really liked it. The theming system is really good. I decided to use Chakra UI because I like discover new components libraries.
+- I decided to use Chart.js but I had some problems with the graphs (not being displayed), so I changed to use Recharts instead. This was my first time working with Recharts but the documentation is really good.
+- I had some problems with the colors in the charts, so I decided change the default colors for the charts.
+- I was doing the project without refactoring the code, I did the minimum to make it work (MVP). After that, I decided to refactor the code to improve the code quality and readibility.
+
+### Future improvements
+
+- Add more tests.
+- Responsive design.
